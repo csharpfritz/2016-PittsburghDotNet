@@ -1,0 +1,23 @@
+﻿@model IEnumerable<PittsburghDotNet.Models.Speaker>
+
+<h1>Our Speakers</h1>
+
+<table class="table table-responsive table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var speaker in Model)
+    {
+      <tr>
+        <td>@speaker.ID</td>
+        <td>@speaker.Name</td>
+        <td><a href="mailto:@speaker.Email">@speaker.Email</a></td>
+      </tr>
+    }
+  </tbody>
+</table>
