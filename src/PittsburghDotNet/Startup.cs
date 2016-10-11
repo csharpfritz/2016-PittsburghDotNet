@@ -21,7 +21,14 @@ namespace PittsburghDotNet
           .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
           .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
           .AddEnvironmentVariables();
+
       Configuration = builder.Build();
+
+      if (string.IsNullOrEmpty(Configuration["HOSTNAME"]))
+      {
+        Configuration["HOSTNAME"] = System.Environment.MachineName;
+      }
+
     }
 
     public IConfigurationRoot Configuration { get; }
@@ -30,18 +37,22 @@ namespace PittsburghDotNet
     public void ConfigureServices(IServiceCollection services)
     {
 
-      if (Configuration.GetSection("ConnectionStrings")["Type"] == "Postgres")
+      services.AddSingleton(Configuration);
+
+      switch (Configuration.GetSection("ConnectionStrings")["Type"])
       {
-        services
-          .AddEntityFrameworkNpgsql()
-          .AddDbContext<Models.SpeakerContext>(options =>
-          options.UseNpgsql(Configuration.GetConnectionString("PgConnection")));
+        case "Postgres":
+          services
+            .AddEntityFrameworkNpgsql()
+            .AddDbContext<Models.SpeakerContext>(options =>
+            options.UseNpgsql(Configuration.GetConnectionString("PgConnection")));
+          break;
+        default:
+          services.AddDbContext<Models.SpeakerContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("SqlConnection")));
+          break;
       }
-      else
-      {
-        services.AddDbContext<Models.SpeakerContext>(options =>
-          options.UseSqlServer(Configuration.GetConnectionString("SqlConnection")));
-      }
+
       // Add framework services.
       services.AddMvc();
     }
@@ -62,7 +73,7 @@ namespace PittsburghDotNet
         app.UseExceptionHandler("/Home/Error");
       }
 
-      /// Seed the database
+      // Seed the database
       using (var ctx = app.ApplicationServices.GetRequiredService<Models.SpeakerContext>())
       {
         ctx.EnsureSeedData();

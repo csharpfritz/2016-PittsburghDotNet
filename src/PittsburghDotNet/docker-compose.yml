@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  pittsburghdotnet:
+    image: username/pittsburghdotnet
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"

@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  pittsburghdotnet:
+    image: username/pittsburghdotnet:Debug
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    environment:
+      - REMOTE_DEBUGGING=${REMOTE_DEBUGGING}
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
